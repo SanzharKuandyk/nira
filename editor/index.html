@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nira - Blueprint Editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+
+        #header {
+            background: #252526;
+            border-bottom: 1px solid #3e3e42;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #cccccc;
+        }
+
+        #status {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+        }
+
+        .status-dot.disconnected {
+            background: #f44336;
+        }
+
+        .status-dot.saving {
+            background: #ff9800;
+        }
+
+        #validation-bar {
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            padding: 8px 20px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .validation-item {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .validation-ok { color: #4caf50; }
+        .validation-warning { color: #ff9800; }
+        .validation-missing { color: #f44336; }
+
+        #container {
+            display: flex;
+            height: calc(100vh - 49px);
+        }
+
+        #container.with-validation {
+            height: calc(100vh - 80px);
+        }
+
+        #editor-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #3e3e42;
+        }
+
+        #preview-pane {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #1e1e1e;
+        }
+
+        #editor {
+            flex: 1;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 20px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+
+        #preview {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        #preview h1, #preview h2, #preview h3, #preview h4 {
+            color: #cccccc;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+
+        #preview h1 { font-size: 2em; border-bottom: 1px solid #3e3e42; padding-bottom: 8px; }
+        #preview h2 { font-size: 1.5em; border-bottom: 1px solid #3e3e42; padding-bottom: 8px; }
+        #preview h3 { font-size: 1.25em; }
+        #preview h4 { font-size: 1em; }
+
+        #preview p {
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        #preview ul, #preview ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        #preview li {
+            margin-bottom: 8px;
+        }
+
+        #preview code {
+            background: #2d2d30;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        #preview pre {
+            background: #2d2d30;
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        #preview pre code {
+            background: none;
+            padding: 0;
+        }
+
+        #preview blockquote {
+            border-left: 4px solid #3e3e42;
+            padding-left: 16px;
+            margin: 16px 0;
+            color: #808080;
+        }
+
+        #preview table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        #preview table th,
+        #preview table td {
+            border: 1px solid #3e3e42;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        #preview table th {
+            background: #2d2d30;
+            font-weight: 600;
+        }
+
+        #preview a {
+            color: #4d9fff;
+            text-decoration: none;
+        }
+
+        #preview a:hover {
+            text-decoration: underline;
+        }
+
+        #preview hr {
+            border: none;
+            border-top: 1px solid #3e3e42;
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>nira - Blueprint Editor</h1>
+        <div id="status">
+            <div class="status-indicator">
+                <div class="status-dot" id="connection-status"></div>
+                <span id="connection-text">Connected</span>
+            </div>
+            <span id="save-status"></span>
+        </div>
+    </div>
+
+    <div id="validation-bar"></div>
+
+    <div id="container">
+        <div id="editor-pane">
+            <textarea id="editor" placeholder="Loading blueprint..."></textarea>
+        </div>
+        <div id="preview-pane">
+            <div id="preview"></div>
+        </div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const validationBar = document.getElementById('validation-bar');
+        const container = document.getElementById('container');
+        const connectionStatus = document.getElementById('connection-status');
+        const connectionText = document.getElementById('connection-text');
+        const saveStatus = document.getElementById('save-status');
+
+        let ws = null;
+        let saveTimeout = null;
+        let isExternalUpdate = false;
+
+        // Configure marked
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+
+        // Load initial blueprint
+        async function loadBlueprint() {
+            try {
+                const response = await fetch('/api/blueprint');
+                const content = await response.text();
+                editor.value = content;
+                updatePreview();
+                loadValidation();
+            } catch (err) {
+                console.error('Failed to load blueprint:', err);
+                editor.value = '# Error loading blueprint\n\nCheck console for details.';
+            }
+        }
+
+        // Update preview
+        function updatePreview() {
+            preview.innerHTML = marked.parse(editor.value);
+        }
+
+        // Load validation results
+        async function loadValidation() {
+            try {
+                const response = await fetch('/api/validate');
+                const results = await response.json();
+
+                if (results.length === 0) {
+                    validationBar.style.display = 'none';
+                    container.classList.remove('with-validation');
+                    return;
+                }
+
+                let html = '';
+                results.forEach(r => {
+                    let className = 'validation-ok';
+                    let symbol = '✓';
+
+                    if (r.status === 'Warning') {
+                        className = 'validation-warning';
+                        symbol = '⚠';
+                    } else if (r.status === 'Missing') {
+                        className = 'validation-missing';
+                        symbol = '✗';
+                    }
+
+                    html += `<span class="validation-item ${className}">${symbol} ${r.layer_name}: ${r.message}</span>`;
+                });
+
+                validationBar.innerHTML = html;
+                validationBar.style.display = 'block';
+                container.classList.add('with-validation');
+            } catch (err) {
+                console.error('Failed to load validation:', err);
+            }
+        }
+
+        // Save blueprint
+        async function saveBlueprint() {
+            if (isExternalUpdate) return;
+
+            try {
+                saveStatus.textContent = 'Saving...';
+                connectionStatus.classList.add('saving');
+
+                await fetch('/api/blueprint', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: editor.value
+                });
+
+                saveStatus.textContent = 'Saved';
+                connectionStatus.classList.remove('saving');
+
+                setTimeout(() => {
+                    saveStatus.textContent = '';
+                }, 2000);
+
+                // Reload validation after save
+                loadValidation();
+            } catch (err) {
+                console.error('Failed to save:', err);
+                saveStatus.textContent = 'Save failed';
+                connectionStatus.classList.remove('saving');
+            }
+        }
+
+        // Handle editor changes
+        editor.addEventListener('input', () => {
+            updatePreview();
+
+            // Debounce save
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveBlueprint, 1000);
+        });
+
+        // WebSocket connection
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+            ws.onopen = () => {
+                connectionStatus.classList.remove('disconnected');
+                connectionText.textContent = 'Connected';
+            };
+
+            ws.onmessage = (event) => {
+                isExternalUpdate = true;
+                editor.value = event.data;
+                updatePreview();
+                loadValidation();
+
+                setTimeout(() => {
+                    isExternalUpdate = false;
+                }, 100);
+            };
+
+            ws.onclose = () => {
+                connectionStatus.classList.add('disconnected');
+                connectionText.textContent = 'Disconnected';
+
+                // Reconnect after 3 seconds
+                setTimeout(connectWebSocket, 3000);
+            };
+
+            ws.onerror = (err) => {
+                console.error('WebSocket error:', err);
+            };
+        }
+
+        // Initialize
+        loadBlueprint();
+        connectWebSocket();
+    </script>
+</body>
+</html>
