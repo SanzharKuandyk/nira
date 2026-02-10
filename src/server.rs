@@ -128,7 +128,6 @@ async fn websocket_handler(
 
 async fn websocket_connection(mut socket: WebSocket, state: AppState) {
     use futures::stream::StreamExt;
-    use futures::sink::SinkExt;
 
     let mut broadcast_rx = state.broadcast_tx.subscribe();
 
