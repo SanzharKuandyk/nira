@@ -1,261 +1,92 @@
-pub fn get_template(name: &str) -> Option<&'static str> {
-    match name {
-        "default" | "standard" => Some(TEMPLATE_DEFAULT),
-        "minimal" => Some(TEMPLATE_MINIMAL),
-        _ => None,
+use std::fs;
+use std::path::PathBuf;
+
+/// Find the templates directory. Check multiple locations:
+/// 1. <exe_dir>/templates/ (relative to nira.exe - primary location)
+/// 2. ./templates/ (relative to CWD - for development convenience)
+fn find_templates_dir() -> Option<PathBuf> {
+    // Try relative to executable first (primary location)
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            let exe_templates = exe_dir.join("templates");
+            if exe_templates.exists() && exe_templates.is_dir() {
+                return Some(exe_templates);
+            }
+        }
     }
+
+    // Fallback: try current directory (useful during development)
+    let cwd_templates = PathBuf::from("templates");
+    if cwd_templates.exists() && cwd_templates.is_dir() {
+        return Some(cwd_templates);
+    }
+
+    None
 }
 
-pub fn list_templates() -> Vec<(&'static str, &'static str)> {
-    vec![
-        (
-            "default",
-            "Full template with detailed instructions and examples",
-        ),
-        ("minimal", "Compact version with essential sections only"),
-    ]
+/// Load a template by name from the templates/ directory
+pub fn get_template(name: &str) -> Option<String> {
+    let templates_dir = find_templates_dir()?;
+    let template_file = templates_dir.join(format!("{}.md", name));
+
+    fs::read_to_string(template_file).ok()
 }
 
-const TEMPLATE_DEFAULT: &str = r#"# Blueprint: {PROJECT_NAME}
-
-> **Started:** {DATE}
-> **Last updated:** {DATE}
-> **Status:** Planning
-
----
-
-## Layer 1: Intent Map
-
-**PROJECT:** {PROJECT_NAME}
-
-**ONE-LINE:** [what it does, in one sentence, for a human]
-
-**ACTORS:**
-<!-- who/what uses this system, and who/what does it talk to -->
-- [actor 1]
-- [actor 2]
-
-**CORE FLOWS:**
-<!-- the main things that happen, step by step -->
-1. [Actor] does [action] → [what happens] → [end result]
-2. [Actor] does [action] → [what happens] → [end result]
-
-**HARD PARTS:**
-<!-- the things that make this non-trivial — constraints, edge cases, tricky decisions -->
-- [hard part 1]
-- [hard part 2]
-
-**NON-GOALS:**
-<!-- things this project deliberately does NOT do (prevents scope creep) -->
-- [non-goal 1]
-
----
-
-## Layer 2: Interface Contracts
-
-<!--
-  For each interface, pick a type:
-    A = Data Shape    (struct/type that gets passed around)
-    B = Capability    (trait/interface — "I can do X")
-    C = Boundary      (where code meets outside world: CLI, files, network, DB)
--->
-
-### Data Shapes (Type A)
-
-#### [DataName1]
-
-| Field | Type | Meaning |
-|-------|------|---------|
-| | | |
-| | | |
-
-- **Used by:** [which modules consume this]
-- **Produced by:** [which modules create this]
-- **Rules:**
-  - [invariant — something that must always be true]
-
----
-
-### Capabilities (Type B)
-
-#### [TraitName1]
-
-**Purpose:** [one line — what behavior this represents]
-
-| Method | Signature | What it does |
-|--------|-----------|-------------|
-| | | |
-
-- **Implementations:** [list concrete types that implement this]
-- **Rules:**
-  - [constraint — e.g. must be stateless, must return in <Xms]
-
----
-
-### Boundaries (Type C)
-
-#### [BoundaryName1]
-
-**Purpose:** [what outside thing this wraps]
-**Touches:** [file system | network | CLI | database | env vars | ...]
-
-| Operation | Input → Output | Notes |
-|-----------|---------------|-------|
-| | | |
-
-- **Error handling:** [what happens when the outside world fails]
-- **Rules:**
-  - [e.g. never holds file lock, must timeout after Xs]
-
----
-
-### Connection Diagram
-
-<!--
-  Draw how interfaces connect. Label every arrow with the data type it carries.
-  Use ASCII or paste a mermaid/excalidraw link.
--->
-
-```
-[replace with your diagram]
-```
-
----
-
-## Layer 3: File Skeleton
-
-<!--
-  Annotate every file with ONE tag:
-    ← ENTRY:              where execution starts
-    ← CORE:               orchestration / glue logic
-    ← [Data: Name]        defines a data shape (Type A)
-    ← [Capability: Name]  defines a behavior trait (Type B)
-    ← [Boundary: Name]    touches outside world (Type C)
--->
-
-```
-project-root/
-├── src/
-│   ├── main              ← ENTRY: [what it does]
-│   ├── types             ← [Data: all shared types]
-│   └── ...
-```
-
----
-
-## Layer 4: Task Queue
-
-<!--
-  Rules:
-  1. Every task names the FILES it touches
-  2. Every "in progress" task has CONTEXT (what you were thinking)
-  3. Every "next up" task has APPROACH (1-2 sentence plan)
-  4. UPDATE THIS BEFORE YOU STOP WORKING — future you will thank you
--->
-
-### DONE ✓
-
-- [x] [task description]
-
-### IN PROGRESS →
-
-- [ ] **[task description]**
-  - **Context:** [what you were thinking / where you left off]
-  - **Blocked?** [yes/no — if yes, on what?]
-  - **Files:** [exact files being touched]
-
-### NEXT UP
-
-- [ ] **[task description]**
-  - **Depends on:** [what needs to be done first, or "nothing"]
-  - **Files:** [files to create or modify]
-  - **Approach:** [1-2 sentence plan — NOT code, just the idea]
-
-### ICEBOX (later)
-
-- [ ] [idea for later]
-"#;
-
-const TEMPLATE_MINIMAL: &str = r#"# Blueprint: {PROJECT_NAME}
-
-> **Started:** {DATE}
-> **Status:** Planning
-
-## Layer 1: Intent Map
-
-**PROJECT:** {PROJECT_NAME}
-
-**ONE-LINE:** [what it does, in one sentence]
-
-**ACTORS:**
-- [who/what uses this]
-- [who/what it talks to]
-
-**CORE FLOWS:**
-1. [Actor] does [action] → [result]
-2. [Actor] does [action] → [result]
-
-**HARD PARTS:**
-- [constraint or tricky thing]
-
-**NON-GOALS:**
-- [what this deliberately does NOT do]
-
----
-
-## Layer 2: Interface Contracts
-
-### Data Shapes (Type A)
-
-**[DataName]**
-- Field: [type] - [meaning]
-- Used by: [consumers]
-- Produced by: [creators]
-
-### Capabilities (Type B)
-
-**[TraitName]**
-- Purpose: [what behavior]
-- Method: [signature] - [what it does]
-- Implementations: [concrete types]
-
-### Boundaries (Type C)
-
-**[BoundaryName]**
-- Purpose: [what outside thing]
-- Touches: [file system | network | CLI | etc]
-- Error handling: [what happens when it fails]
-
----
-
-## Layer 3: File Skeleton
-
-```
-project/
-├── src/
-│   ├── main     ← ENTRY: [starts here]
-│   ├── types    ← [Data: shared types]
-│   └── ...
-```
-
----
-
-## Layer 4: Task Queue
-
-### DONE ✓
-- [x] [completed task]
-
-### IN PROGRESS →
-- [ ] **[current task]**
-  - **Context:** [where you left off]
-  - **Files:** [which files]
-
-### NEXT UP
-- [ ] **[next task]**
-  - **Depends on:** [prerequisites]
-  - **Files:** [which files]
-  - **Approach:** [how to do it]
-
-### ICEBOX
-- [ ] [idea for later]
-"#;
+/// List all available templates by reading .md files from templates/
+pub fn list_templates() -> Vec<(String, String)> {
+    let Some(templates_dir) = find_templates_dir() else {
+        return vec![];
+    };
+
+    let Ok(entries) = fs::read_dir(&templates_dir) else {
+        return vec![];
+    };
+
+    let mut templates = vec![];
+
+    for entry in entries.flatten() {
+        let path = entry.path();
+
+        // Only process .md files
+        if path.extension().and_then(|s| s.to_str()) != Some("md") {
+            continue;
+        }
+
+        // Get template name from filename
+        let Some(name) = path.file_stem().and_then(|s| s.to_str()) else {
+            continue;
+        };
+
+        // Read file to extract description from first line comment
+        let description = if let Ok(content) = fs::read_to_string(&path) {
+            extract_description(&content)
+        } else {
+            format!("Template: {}", name)
+        };
+
+        templates.push((name.to_string(), description));
+    }
+
+    // Sort by name for consistent ordering
+    templates.sort_by(|a, b| a.0.cmp(&b.0));
+
+    templates
+}
+
+/// Extract description from template file
+/// Looks for: <!-- Description: text here -->
+fn extract_description(content: &str) -> String {
+    for line in content.lines().take(10) {
+        let trimmed = line.trim();
+        if trimmed.starts_with("<!-- Description:") {
+            if let Some(desc_start) = trimmed.strip_prefix("<!-- Description:") {
+                if let Some(desc) = desc_start.strip_suffix("-->") {
+                    return desc.trim().to_string();
+                }
+            }
+        }
+    }
+
+    // Default description if not found
+    "Custom template".to_string()
+}

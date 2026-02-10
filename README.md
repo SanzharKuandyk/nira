@@ -31,8 +31,17 @@ The 4 layers:
 
 ```bash
 cargo build --release
-cp target/release/nira ~/.local/bin/  # or anywhere in your PATH
+
+# Copy both the binary and templates folder
+cp target/release/nira ~/.local/bin/
+cp -r templates ~/.local/bin/
+
+# Or on Windows
+copy target\release\nira.exe %USERPROFILE%\bin\
+xcopy /E /I templates %USERPROFILE%\bin\templates
 ```
+
+**Important:** The `templates/` folder must be in the same directory as `nira.exe` for template loading to work.
 
 ## Quick Start
 
@@ -40,11 +49,12 @@ cp target/release/nira ~/.local/bin/  # or anywhere in your PATH
 # Create a new blueprint (uses default template)
 nira init --name "MyProject"
 
-# Or choose a template
+# Or choose a different approach
 nira init --template minimal
-nira init --template simple
+nira init --template constraints-first
+nira init --template interface-driven
 
-# List available templates
+# List all templates with descriptions
 nira init --list-templates
 
 # Edit it in your favorite editor, or use the web UI
@@ -69,23 +79,49 @@ nira task done 1
 
 ## Templates
 
-nira comes with 4 built-in templates:
+Templates are loaded dynamically from the `templates/` folder. nira comes with 5 built-in templates:
 
-- **default** (152 lines) - Full template with detailed instructions and examples
-- **minimal** (82 lines) - Compact version with essential sections only
-- **simple** (50 lines) - Basic skeleton with just the 4 layer headings
-- **weeb** (158 lines) - Anime/VN style with kawaii aesthetic (◕‿◕✿)
+### Standard Approaches
+
+- **default** - Full 4-layer template with detailed instructions and examples
+- **minimal** - Compact 4-layer version with essential sections only
+- **quick** - Ultra-fast template for rapid prototyping
+
+### Alternative Approaches
+
+- **constraints-first** - Start with boundaries and limits, build around constraints
+  - Sections: Boundaries & Limits → Interface Contracts → Safe Paths → Risk Register → Tasks → Validation
+  - Use when: Working with strict technical constraints, performance requirements, or external API limits
+  - Philosophy: Define what you CAN'T do first, then design within those guardrails
+
+- **interface-driven** - Start with contracts and APIs, implementation follows
+  - Sections: Public API → Core Data Types → Internal Contracts → Implementation Modules → Integration Points → Testing
+  - Use when: Building libraries, SDKs, or when API stability is critical
+  - Philosophy: Contracts are the source of truth, implementation is just details
 
 Use `--template` to choose:
 
 ```bash
 nira init --template minimal
-nira init --template simple
-nira init --template weeb      # ～ for culture ～
-nira init --list-templates
+nira init --template constraints-first
+nira init --template interface-driven
+nira init --list-templates  # Shows all available templates
 ```
 
-Start with **simple** if you want maximum flexibility, **minimal** for balanced guidance, **default** for comprehensive examples, or **weeb** if you're a person of culture.
+### Adding Custom Templates
+
+Templates are just markdown files in the `templates/` folder. To add your own:
+
+1. Create `templates/my-template.md`
+2. Add a description comment at the top:
+   ```markdown
+   <!-- Description: Your template description here -->
+   # Blueprint: {PROJECT_NAME}
+   ```
+3. Use `{PROJECT_NAME}` and `{DATE}` as placeholders
+4. Done! It will automatically appear in `nira init --list-templates`
+
+No code changes or recompilation needed. Just drop a `.md` file in `templates/` and it's ready to use.
 
 ## Commands
 

@@ -28,6 +28,8 @@ enum Commands {
         template: String,
         #[arg(long)]
         list_templates: bool,
+        #[arg(long)]
+        template_file: Option<PathBuf>,
     },
     /// Open blueprint in browser editor with live preview
     Serve {
@@ -92,6 +94,7 @@ async fn main() {
             force,
             template: template_name,
             list_templates,
+            template_file,
         } => {
             // List available templates if requested
             if list_templates {
