@@ -2,6 +2,17 @@
 
 Your personal architectural control center. Stay in control when using AI to write code.
 
+> **Author’s note:**  
+> I am just testing this. This tool stems from issues I got with AI agents/models when I build something.
+> I can ask a model to suggest what to do next, and it can happen spontaneously, or I might concentrate on issues too much.
+>
+> Then I end up losing track of what implementation decisions we made—even if the AI agent writes files like `CLAUDE.md`
+> or planning docs like `progress.md` / `findings.md`, because nobody actually reads them.
+>
+> So I decided to write an architecture plan myself and try to follow it, marking what we did or didn’t do directly.
+> Using diagrams and stuff you usually learn in a Software Architecture course could work too,
+> but I want **one file** that contains everything and can be run per project via some tool.
+
 ## The Problem
 
 When you use AI to implement code, you lose the mental map. You look at the result and can't trace how pieces connect. If the AI hits a limit or goes off-track, you're stuck.
