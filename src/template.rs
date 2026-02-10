@@ -1,4 +1,22 @@
-pub const TEMPLATE: &str = r#"# Blueprint: {PROJECT_NAME}
+pub fn get_template(name: &str) -> Option<&'static str> {
+    match name {
+        "default" | "standard" => Some(TEMPLATE_DEFAULT),
+        "minimal" => Some(TEMPLATE_MINIMAL),
+        _ => None,
+    }
+}
+
+pub fn list_templates() -> Vec<(&'static str, &'static str)> {
+    vec![
+        (
+            "default",
+            "Full template with detailed instructions and examples",
+        ),
+        ("minimal", "Compact version with essential sections only"),
+    ]
+}
+
+const TEMPLATE_DEFAULT: &str = r#"# Blueprint: {PROJECT_NAME}
 
 > **Started:** {DATE}
 > **Last updated:** {DATE}
@@ -155,5 +173,89 @@ project-root/
 
 ### ICEBOX (later)
 
+- [ ] [idea for later]
+"#;
+
+const TEMPLATE_MINIMAL: &str = r#"# Blueprint: {PROJECT_NAME}
+
+> **Started:** {DATE}
+> **Status:** Planning
+
+## Layer 1: Intent Map
+
+**PROJECT:** {PROJECT_NAME}
+
+**ONE-LINE:** [what it does, in one sentence]
+
+**ACTORS:**
+- [who/what uses this]
+- [who/what it talks to]
+
+**CORE FLOWS:**
+1. [Actor] does [action] → [result]
+2. [Actor] does [action] → [result]
+
+**HARD PARTS:**
+- [constraint or tricky thing]
+
+**NON-GOALS:**
+- [what this deliberately does NOT do]
+
+---
+
+## Layer 2: Interface Contracts
+
+### Data Shapes (Type A)
+
+**[DataName]**
+- Field: [type] - [meaning]
+- Used by: [consumers]
+- Produced by: [creators]
+
+### Capabilities (Type B)
+
+**[TraitName]**
+- Purpose: [what behavior]
+- Method: [signature] - [what it does]
+- Implementations: [concrete types]
+
+### Boundaries (Type C)
+
+**[BoundaryName]**
+- Purpose: [what outside thing]
+- Touches: [file system | network | CLI | etc]
+- Error handling: [what happens when it fails]
+
+---
+
+## Layer 3: File Skeleton
+
+```
+project/
+├── src/
+│   ├── main     ← ENTRY: [starts here]
+│   ├── types    ← [Data: shared types]
+│   └── ...
+```
+
+---
+
+## Layer 4: Task Queue
+
+### DONE ✓
+- [x] [completed task]
+
+### IN PROGRESS →
+- [ ] **[current task]**
+  - **Context:** [where you left off]
+  - **Files:** [which files]
+
+### NEXT UP
+- [ ] **[next task]**
+  - **Depends on:** [prerequisites]
+  - **Files:** [which files]
+  - **Approach:** [how to do it]
+
+### ICEBOX
 - [ ] [idea for later]
 "#;

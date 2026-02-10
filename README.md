@@ -37,40 +37,72 @@ cp target/release/nira ~/.local/bin/  # or anywhere in your PATH
 ## Quick Start
 
 ```bash
-# Create a new blueprint
+# Create a new blueprint (uses default template)
 nira init --name "MyProject"
 
-# Edit it in your favorite editor, or use the web UI
-nira serve blueprint.md
+# Or choose a template
+nira init --template minimal
+nira init --template simple
 
-# Check if it's complete
-nira validate blueprint.md
+# List available templates
+nira init --list-templates
+
+# Edit it in your favorite editor, or use the web UI
+nira serve
+
+# Or specify a different file
+nira serve my-architecture.md
+
+# Check if it's complete (defaults to niraprint.md)
+nira validate
 
 # Generate AI instructions
-nira prompt blueprint.md > prompt.txt
+nira prompt > prompt.txt
 # Copy prompt.txt and paste it to Claude/ChatGPT
 
 # Manage your task queue
-nira task list blueprint.md
-nira task add "Implement feature X" blueprint.md
-nira task start 1 blueprint.md
-nira task done 1 blueprint.md
+nira task list
+nira task add "Implement feature X"
+nira task start 1
+nira task done 1
 ```
+
+## Templates
+
+nira comes with 4 built-in templates:
+
+- **default** (152 lines) - Full template with detailed instructions and examples
+- **minimal** (82 lines) - Compact version with essential sections only
+- **simple** (50 lines) - Basic skeleton with just the 4 layer headings
+- **weeb** (158 lines) - Anime/VN style with kawaii aesthetic (◕‿◕✿)
+
+Use `--template` to choose:
+
+```bash
+nira init --template minimal
+nira init --template simple
+nira init --template weeb      # ～ for culture ～
+nira init --list-templates
+```
+
+Start with **simple** if you want maximum flexibility, **minimal** for balanced guidance, **default** for comprehensive examples, or **weeb** if you're a person of culture.
 
 ## Commands
 
-- `nira init` - Create a new blueprint from template
-- `nira serve` - Open web editor with live preview and auto-save
-- `nira validate` - Check blueprint completeness
-- `nira prompt` - Generate AI-ready instructions (full or for specific task)
-- `nira task list` - Show all tasks with numbers
-- `nira task add` - Add a new task
-- `nira task start N` - Move task N to IN PROGRESS
-- `nira task done N` - Mark task N as complete
+- `nira init [--template NAME]` - Create a new niraprint.md from template
+- `nira serve [FILE]` - Open web editor with live preview and auto-save (defaults to niraprint.md)
+- `nira validate [FILE]` - Check blueprint completeness (defaults to niraprint.md)
+- `nira prompt [FILE]` - Generate AI-ready instructions (full or for specific task)
+- `nira task list [FILE]` - Show all tasks with numbers
+- `nira task add "text" [FILE]` - Add a new task
+- `nira task start N [FILE]` - Move task N to IN PROGRESS
+- `nira task done N [FILE]` - Mark task N as complete
+
+All commands default to `niraprint.md` but you can specify any file.
 
 ## The Web Editor
 
-Run `nira serve blueprint.md` to get:
+Run `nira serve` to get:
 
 - Split-pane interface (editor left, preview right)
 - Live markdown rendering
@@ -100,22 +132,22 @@ You're not a fraud for using AI. You're an architect who delegates implementatio
 nira init --name "logwatch"
 
 # Fill in the blueprint (use nira serve for live preview)
-nira serve blueprint.md
+nira serve
 
 # Check your work
-nira validate blueprint.md
+nira validate
 
 # Generate prompt for the AI
-nira prompt blueprint.md --task 1 > task1.txt
+nira prompt --task 1 > task1.txt
 
 # Give task1.txt to Claude/ChatGPT
 # AI implements it following your architecture
 
 # Mark it done when AI finishes
-nira task done 1 blueprint.md
+nira task done 1
 
 # Repeat for next task
-nira prompt blueprint.md --task 2 > task2.txt
+nira prompt --task 2 > task2.txt
 ```
 
 ## What Makes It Different

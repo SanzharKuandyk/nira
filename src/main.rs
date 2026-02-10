@@ -3,11 +3,11 @@ use std::path::PathBuf;
 
 mod blueprint;
 mod parser;
-mod validator;
 mod prompt;
+mod server;
 mod tasks;
 mod template;
-mod server;
+mod validator;
 
 #[derive(Parser)]
 #[command(name = "nira", about = "Your personal architectural control center")]
@@ -24,22 +24,26 @@ enum Commands {
         name: Option<String>,
         #[arg(long)]
         force: bool,
+        #[arg(long, short = 't', default_value = "default")]
+        template: String,
+        #[arg(long)]
+        list_templates: bool,
     },
     /// Open blueprint in browser editor with live preview
     Serve {
-        #[arg(default_value = "blueprint.md")]
+        #[arg(default_value = "niraprint.md")]
         file: PathBuf,
         #[arg(long, default_value = "3141")]
         port: u16,
     },
     /// Check blueprint completeness
     Validate {
-        #[arg(default_value = "blueprint.md")]
+        #[arg(default_value = "niraprint.md")]
         file: PathBuf,
     },
     /// Generate AI-ready prompt from blueprint
     Prompt {
-        #[arg(default_value = "blueprint.md")]
+        #[arg(default_value = "niraprint.md")]
         file: PathBuf,
         #[arg(long)]
         task: Option<usize>,
@@ -55,25 +59,25 @@ enum Commands {
 enum TaskAction {
     /// List all tasks
     List {
-        #[arg(default_value = "blueprint.md")]
+        #[arg(default_value = "niraprint.md")]
         file: PathBuf,
     },
     /// Add a task to NEXT UP
     Add {
         description: String,
-        #[arg(default_value = "blueprint.md")]
+        #[arg(default_value = "niraprint.md")]
         file: PathBuf,
     },
     /// Move a task to DONE
     Done {
         task_num: usize,
-        #[arg(default_value = "blueprint.md")]
+        #[arg(default_value = "niraprint.md")]
         file: PathBuf,
     },
     /// Move a task to IN PROGRESS
     Start {
         task_num: usize,
-        #[arg(default_value = "blueprint.md")]
+        #[arg(default_value = "niraprint.md")]
         file: PathBuf,
     },
 }
@@ -83,15 +87,43 @@ async fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Init { name, force } => {
-            let file_path = std::path::Path::new("blueprint.md");
+        Commands::Init {
+            name,
+            force,
+            template: template_name,
+            list_templates,
+        } => {
+            // List available templates if requested
+            if list_templates {
+                println!("Available templates:\n");
+                for (name, description) in template::list_templates() {
+                    println!("  {} - {}", name, description);
+                }
+                println!("\nUsage: nira init --template <name>");
+                return;
+            }
+
+            let file_path = std::path::Path::new("niraprint.md");
 
             // Check if file already exists
             if file_path.exists() && !force {
-                eprintln!("Error: blueprint.md already exists in this directory.");
+                eprintln!("Error: niraprint.md already exists in this directory.");
                 eprintln!("Use --force to overwrite it.");
                 std::process::exit(1);
             }
+
+            // Get template
+            let template_str = match template::get_template(&template_name) {
+                Some(t) => t,
+                None => {
+                    eprintln!("Error: Template '{}' not found.", template_name);
+                    eprintln!("\nAvailable templates:");
+                    for (name, description) in template::list_templates() {
+                        eprintln!("  {} - {}", name, description);
+                    }
+                    std::process::exit(1);
+                }
+            };
 
             // Get project name
             let project_name = name.unwrap_or_else(|| {
@@ -106,21 +138,21 @@ async fn main() {
             let date = chrono::Local::now().format("%Y-%m-%d").to_string();
 
             // Substitute placeholders in template
-            let content = template::TEMPLATE
+            let content = template_str
                 .replace("{PROJECT_NAME}", &project_name)
                 .replace("{DATE}", &date);
 
             // Write file
             match std::fs::write(file_path, content) {
                 Ok(_) => {
-                    println!("✓ Created blueprint.md");
+                    println!("✓ Created niraprint.md using '{}' template", template_name);
                     println!("\nNext steps:");
-                    println!("  1. Edit blueprint.md and fill in the layers");
+                    println!("  1. Edit niraprint.md and fill in the layers");
                     println!("  2. Run 'nira validate' to check your progress");
                     println!("  3. Run 'nira prompt' to generate AI instructions");
                 }
                 Err(e) => {
-                    eprintln!("Error: Failed to write blueprint.md: {}", e);
+                    eprintln!("Error: Failed to write niraprint.md: {}", e);
                     std::process::exit(1);
                 }
             }
@@ -141,12 +173,17 @@ async fn main() {
                     blueprint::ValidationStatus::Missing => "✗",
                 };
 
-                println!("{} Layer {}: {} - {}",
-                    symbol, result.layer, result.layer_name, result.message);
+                println!(
+                    "{} Layer {}: {} - {}",
+                    symbol, result.layer, result.layer_name, result.message
+                );
             }
 
             // Exit with error code if there are Missing items
-            if results.iter().any(|r| matches!(r.status, blueprint::ValidationStatus::Missing)) {
+            if results
+                .iter()
+                .any(|r| matches!(r.status, blueprint::ValidationStatus::Missing))
+            {
                 std::process::exit(1);
             }
         }
@@ -173,15 +210,13 @@ async fn main() {
                 let bp = load_blueprint(&file);
                 tasks::list_tasks(&bp);
             }
-            TaskAction::Add { description, file } => {
-                match tasks::add_task(&file, &description) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        eprintln!("Error: {}", e);
-                        std::process::exit(1);
-                    }
+            TaskAction::Add { description, file } => match tasks::add_task(&file, &description) {
+                Ok(_) => {}
+                Err(e) => {
+                    eprintln!("Error: {}", e);
+                    std::process::exit(1);
                 }
-            }
+            },
             TaskAction::Done { task_num, file } => {
                 match tasks::move_task(&file, task_num, blueprint::TaskStatus::Done) {
                     Ok(_) => {}
@@ -210,7 +245,7 @@ fn load_blueprint(path: &PathBuf) -> blueprint::Blueprint {
         Ok(c) => c,
         Err(_) => {
             eprintln!("Error: Could not read {}.", path.display());
-            eprintln!("Run `nira init` to create one.");
+            eprintln!("Run 'nira init' to create niraprint.md");
             std::process::exit(1);
         }
     };
