@@ -14,90 +14,65 @@
 **ONE-LINE:** [what it does, in one sentence, for a human]
 
 **ACTORS:**
-<!-- who/what uses this system, and who/what does it talk to -->
+> Who/what uses this system, and who/what does it talk to
 - [actor 1]
 - [actor 2]
 
 **CORE FLOWS:**
-<!-- the main things that happen, step by step -->
+> The main things that happen, step by step
 1. [Actor] does [action] → [what happens] → [end result]
 2. [Actor] does [action] → [what happens] → [end result]
 
 **HARD PARTS:**
-<!-- the things that make this non-trivial — constraints, edge cases, tricky decisions -->
+> Things that make this non-trivial — constraints, edge cases, tricky decisions
 - [hard part 1]
 - [hard part 2]
 
 **NON-GOALS:**
-<!-- things this project deliberately does NOT do (prevents scope creep) -->
+> Things this project deliberately does NOT do (prevents scope creep)
 - [non-goal 1]
 
 ---
 
 ## Layer 2: Interface Contracts
 
-<!--
-  For each interface, pick a type:
-    A = Data Shape    (struct/type that gets passed around)
-    B = Capability    (trait/interface — "I can do X")
-    C = Boundary      (where code meets outside world: CLI, files, network, DB)
--->
+> For each interface, pick a type:
+> A = Data Shape (struct/type that gets passed around)
+> B = Capability (trait/interface — "I can do X")
+> C = Boundary (where code meets outside world: CLI, files, network, DB)
 
 ### Data Shapes (Type A)
 
-#### [DataName1]
-
-| Field | Type | Meaning |
-|-------|------|---------|
-| | | |
-| | | |
-
-- **Used by:** [which modules consume this]
-- **Produced by:** [which modules create this]
-- **Rules:**
-  - [invariant — something that must always be true]
+**[DataName1]**
+- field_name: Type — what it means
+- field_name: Type — what it means
+- Used by: [which modules consume this]
+- Produced by: [which modules create this]
+- Rules: [invariant — something that must always be true]
 
 ---
 
 ### Capabilities (Type B)
 
-#### [TraitName1]
-
-**Purpose:** [one line — what behavior this represents]
-
-| Method | Signature | What it does |
-|--------|-----------|-------------|
-| | | |
-
-- **Implementations:** [list concrete types that implement this]
-- **Rules:**
-  - [constraint — e.g. must be stateless, must return in <Xms]
+**[TraitName1]** — [one line: what behavior this represents]
+- method_name(input) -> output — what it does
+- Implementations: [list concrete types that implement this]
+- Rules: [constraint — e.g. must be stateless, must return in <Xms]
 
 ---
 
 ### Boundaries (Type C)
 
-#### [BoundaryName1]
-
-**Purpose:** [what outside thing this wraps]
-**Touches:** [file system | network | CLI | database | env vars | ...]
-
-| Operation | Input → Output | Notes |
-|-----------|---------------|-------|
-| | | |
-
-- **Error handling:** [what happens when the outside world fails]
-- **Rules:**
-  - [e.g. never holds file lock, must timeout after Xs]
+**[BoundaryName1]** — touches [file system | network | CLI | database | ...]
+- operation_name: input → output — notes
+- Error handling: [what happens when the outside world fails]
+- Rules: [e.g. never holds file lock, must timeout after Xs]
 
 ---
 
 ### Connection Diagram
 
-<!--
-  Draw how interfaces connect. Label every arrow with the data type it carries.
-  Use ASCII or paste a mermaid/excalidraw link.
--->
+> Draw how interfaces connect. Label arrows with the data type they carry.
 
 ```
 [replace with your diagram]
@@ -107,20 +82,15 @@
 
 ## Layer 3: File Skeleton
 
-<!--
-  Annotate every file with ONE tag:
-    ← ENTRY:              where execution starts
-    ← CORE:               orchestration / glue logic
-    ← [Data: Name]        defines a data shape (Type A)
-    ← [Capability: Name]  defines a behavior trait (Type B)
-    ← [Boundary: Name]    touches outside world (Type C)
--->
+> Annotate every file with ONE tag:
+> ENTRY = where execution starts, CORE = orchestration/glue
+> Data:Name = defines a data shape, Cap:Name = defines a trait, Boundary:Name = touches outside world
 
 ```
 project-root/
 ├── src/
 │   ├── main              ← ENTRY: [what it does]
-│   ├── types             ← [Data: all shared types]
+│   ├── types             ← Data: [all shared types]
 │   └── ...
 ```
 
@@ -128,13 +98,8 @@ project-root/
 
 ## Layer 4: Task Queue
 
-<!--
-  Rules:
-  1. Every task names the FILES it touches
-  2. Every "in progress" task has CONTEXT (what you were thinking)
-  3. Every "next up" task has APPROACH (1-2 sentence plan)
-  4. UPDATE THIS BEFORE YOU STOP WORKING — future you will thank you
--->
+> Rules: every task names FILES it touches, in-progress tasks have CONTEXT,
+> next-up tasks have APPROACH. Update this before you stop working.
 
 ### DONE ✓
 

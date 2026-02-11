@@ -10,11 +10,7 @@
 
 ## 1. PUBLIC API
 
-<!--
-  Start here: what does the outside world see?
-  This is your contract with users/callers.
-  Everything else flows from this.
--->
+> Start here: what does the outside world see? Everything else flows from this.
 
 **Project:** {PROJECT_NAME}
 
@@ -22,14 +18,15 @@
 
 ### Entry Points
 
-<!--
-  How do users/systems interact with this?
-  CLI commands, function calls, HTTP endpoints, etc.
--->
+> How do users/systems interact with this? CLI commands, function calls, HTTP endpoints, etc.
 
-| Entry Point | Signature | Returns | Purpose |
-|------------|-----------|---------|---------|
-| [command/function/endpoint] | [input params] | [output type] | [what it does] |
+**[command/function/endpoint]**
+- Signature: [input params] → [output type]
+- Purpose: [what it does]
+
+**[command/function/endpoint]**
+- Signature: [input params] → [output type]
+- Purpose: [what it does]
 
 **Examples:**
 ```
@@ -37,19 +34,14 @@
 ```
 
 **Stability Promise:**
-<!-- Which parts are stable, which might change -->
-- **Stable:** [what you commit to not breaking]
-- **Unstable:** [what might change, marked experimental]
+- Stable: [what you commit to not breaking]
+- Unstable: [what might change, marked experimental]
 
 ---
 
 ## 2. CORE DATA TYPES
 
-<!--
-  The nouns of your system.
-  What data flows through the interfaces?
-  Define these BEFORE thinking about implementation.
--->
+> The nouns of your system. Define these BEFORE thinking about implementation.
 
 ### [TypeName1]
 
@@ -60,34 +52,29 @@
 [pseudo-code or actual type definition]
 ```
 
-| Field | Type | Meaning | Required? | Validated how? |
-|-------|------|---------|-----------|----------------|
-| | | | Yes/No | [validation rule] |
+**Fields:**
+- field_name: Type — meaning (required/optional, validation rule)
+- field_name: Type — meaning (required/optional, validation rule)
 
 **Flows through:**
-<!-- Which interfaces consume/produce this type -->
-- **Created by:** [which API/module]
-- **Consumed by:** [which API/module]
-- **Transformed by:** [which operations]
+- Created by: [which API/module]
+- Consumed by: [which API/module]
+- Transformed by: [which operations]
 
 **Invariants:**
 - [rule that must always be true]
-- [another invariant]
 
 ---
 
 ### [TypeName2]
 
-[repeat structure above for each core type]
+> Repeat the structure above for each core type.
 
 ---
 
 ## 3. INTERNAL CONTRACTS
 
-<!--
-  Interfaces between modules INSIDE your system.
-  These are your trait definitions, internal APIs, module boundaries.
--->
+> Interfaces between modules INSIDE your system — trait definitions, internal APIs, module boundaries.
 
 ### Interface: [InterfaceName]
 
@@ -98,14 +85,13 @@
 [trait definition or interface spec]
 ```
 
-| Method | Input → Output | Purpose | Error conditions |
-|--------|---------------|---------|-----------------|
-| | | | |
+**Methods:**
+- method_name: input → output — purpose (error conditions)
+- method_name: input → output — purpose (error conditions)
 
 **Implementations:**
-<!-- Which concrete types provide this interface -->
-- `[ConcreteType1]` — [when to use this implementation]
-- `[ConcreteType2]` — [when to use this implementation]
+- `ConcreteType1` — [when to use this implementation]
+- `ConcreteType2` — [when to use this implementation]
 
 **Usage:**
 ```
@@ -116,10 +102,7 @@
 
 ## 4. IMPLEMENTATION MODULES
 
-<!--
-  Now map interfaces to files.
-  Each module implements or composes interfaces defined above.
--->
+> Map interfaces to files. Each module implements or composes interfaces defined above.
 
 ### File Structure
 
@@ -127,44 +110,27 @@
 project-root/
 ├── src/
 │   ├── main              ← ENTRY: uses [PublicAPI interfaces]
-│   │
 │   ├── api/              ← PUBLIC API (section 1)
-│   │   ├── mod.rs        ← Exports: [list public functions/types]
+│   │   ├── mod           ← Exports: [list public functions/types]
 │   │   └── ...           ← Implements: [which entry points]
-│   │
 │   ├── types/            ← CORE DATA TYPES (section 2)
-│   │   ├── mod.rs        ← Exports: [list types]
-│   │   ├── type1.rs      ← Defines: [TypeName1]
-│   │   └── type2.rs      ← Defines: [TypeName2]
-│   │
+│   │   ├── mod           ← Exports: [list types]
+│   │   └── ...
 │   ├── [module_name]/    ← INTERNAL CONTRACT (section 3)
-│   │   ├── mod.rs        ← Exports: [InterfaceName trait]
-│   │   ├── impl1.rs      ← Implements: [InterfaceName for ConcreteType1]
-│   │   └── impl2.rs      ← Implements: [InterfaceName for ConcreteType2]
-│   │
+│   │   ├── mod           ← Exports: [InterfaceName trait]
+│   │   ├── impl1         ← Implements: [InterfaceName for ConcreteType1]
+│   │   └── impl2         ← Implements: [InterfaceName for ConcreteType2]
 │   └── ...
 ```
 
-### Module Annotations
-
-**For each module, specify:**
-
-#### `src/[module_name]`
-
-- **Exports:** [which types/functions/traits are public from this module]
-- **Implements:** [which interfaces from section 3]
-- **Uses types:** [which core types from section 2]
-- **Depends on:** [which other modules]
-- **Tested via:** [unit tests in same file, or integration tests where]
+> For each module, note: what it exports, what interfaces it implements,
+> which types it uses, what it depends on, and how it's tested.
 
 ---
 
 ## 5. INTEGRATION POINTS
 
-<!--
-  Show how interfaces connect to each other.
-  Draw the data flow between modules.
--->
+> How interfaces connect to each other. Show the data flow between modules.
 
 ### Flow Diagram
 
@@ -205,26 +171,18 @@ project-root/
 
 ## 6. INTERFACE CHANGE PROTOCOL
 
-<!--
-  How do we evolve interfaces without breaking things?
--->
+**Adding a new entry point:**
+1. Define input/output types in section 2
+2. Add entry point to public API in section 1
+3. Create internal interface if needed in section 3
+4. Implement and test
 
-### Adding New Features
+**Modifying existing interface:**
+1. Check stability promise in section 1
+2. If stable, must be backward compatible
+3. Update all call sites before merging
 
-**To add a new entry point:**
-1. [step 1: e.g., "Define input/output types in section 2"]
-2. [step 2: e.g., "Add entry point to public API table in section 1"]
-3. [step 3: e.g., "Create internal interface if needed in section 3"]
-4. [step 4: e.g., "Implement and test"]
-
-**To modify existing interface:**
-1. [step 1: e.g., "Check stability promise in section 1"]
-2. [step 2: e.g., "If stable, must be backward compatible"]
-3. [step 3: e.g., "Update all call sites before merging"]
-
-### Breaking Changes
-
-**When breaking change is necessary:**
+**Breaking changes checklist:**
 - [ ] Document in CHANGELOG
 - [ ] Update section 1 stability promise
 - [ ] Create migration guide
@@ -234,44 +192,27 @@ project-root/
 
 ## 7. TASK QUEUE (Organized by Interface)
 
-<!--
-  Group tasks by which interface they touch.
-  This makes it easy to work on one interface at a time.
--->
+> Group tasks by which interface they touch. Work on one interface at a time.
 
 ### DONE ✓
 
 - [x] [task description] — *interface: [which one]*
 
-### IN PROGRESS → Public API Tasks
+### IN PROGRESS →
 
 - [ ] **[task description]**
-  - **Interface:** [entry point from section 1]
-  - **Changes:** [what's being added/modified in public API]
-  - **Files:** [list]
-  - **Tests:** [which public API tests need updating]
-
-### IN PROGRESS → Core Type Tasks
-
-- [ ] **[task description]**
-  - **Type:** [which core type from section 2]
-  - **Changes:** [new fields, validation rules, etc]
-  - **Impact:** [which interfaces use this type]
-  - **Files:** [list]
-
-### IN PROGRESS → Internal Contract Tasks
-
-- [ ] **[task description]**
-  - **Interface:** [which internal contract from section 3]
-  - **Changes:** [new methods, implementations]
+  - **Context:** [where you left off]
+  - **Interface:** [which entry point / type / contract from sections above]
+  - **Changes:** [what's being added/modified]
   - **Files:** [list]
 
 ### NEXT UP
 
 - [ ] **[task description]**
+  - **Depends on:** [prerequisites, or "nothing"]
   - **Interface:** [which one]
-  - **Approach:** [how to implement while respecting contract]
   - **Files:** [list]
+  - **Approach:** [how to implement while respecting contract]
 
 ### ICEBOX
 
@@ -279,17 +220,18 @@ project-root/
 
 ---
 
-## 8. TESTING MATRIX
+## 8. TESTING STRATEGY
 
-<!--
-  For each interface, what needs testing?
--->
+> For each interface layer, what needs testing?
 
-| Interface | Test type | What to test | Test file |
-|-----------|-----------|--------------|-----------|
-| [API name] | Unit | [specific behavior] | [file path] |
-| [API name] | Integration | [interface interaction] | [file path] |
-| [Type name] | Property | [invariant to verify] | [file path] |
+**Public API tests:**
+- [API name]: [specific behavior to test] — [test file]
+
+**Core type tests:**
+- [Type name]: [invariant to verify] — [test file]
+
+**Internal contract tests:**
+- [Interface name]: [interaction to test] — [test file]
 
 **Coverage goals:**
 - [ ] All public API entry points have integration tests
