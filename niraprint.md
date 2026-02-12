@@ -1,12 +1,12 @@
 <!-- Description: Compact version with essential sections only -->
-# Blueprint: {PROJECT_NAME}
+# Blueprint: TestProject
 
-> **Started:** {DATE}
+> **Started:** 2026-02-11
 > **Status:** Planning
 
 ## Layer 1: Intent Map
 
-**PROJECT:** {PROJECT_NAME}
+**PROJECT:** TestProject
 
 **ONE-LINE:** [what it does, in one sentence]
 
