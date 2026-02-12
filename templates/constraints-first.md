@@ -57,9 +57,9 @@
 
 #### [TypeName]
 
-| Field | Type | Constraint it satisfies |
-|-------|------|------------------------|
-| | | [which boundary/limit does this field respect?] |
+**Fields:**
+- `field1` (type) — *respects: [which boundary/limit does this field respect?]*
+- `field2` (type) — *respects: [constraint from section 1]*
 
 **Invariants:**
 <!-- Rules that must ALWAYS be true, derived from constraints -->
@@ -150,9 +150,19 @@ project-root/
   Where might we hit constraints? What needs careful testing?
 -->
 
-| Risk | Constraint at risk | Probability | Mitigation | Test strategy |
-|------|-------------------|-------------|------------|--------------|
-| [what could go wrong] | [which boundary] | High/Med/Low | [how we prevent it] | [how we test for it] |
+**Risk 1:**
+- What could go wrong: [describe the risk]
+- Constraint at risk: [which boundary]
+- Probability: High/Med/Low
+- Mitigation: [how we prevent it]
+- Test strategy: [how we test for it]
+
+**Risk 2:**
+- What could go wrong: [describe the risk]
+- Constraint at risk: [which boundary]
+- Probability: High/Med/Low
+- Mitigation: [how we prevent it]
+- Test strategy: [how we test for it]
 
 ---
 

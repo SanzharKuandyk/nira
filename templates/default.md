@@ -47,15 +47,16 @@
 
 #### [DataName1]
 
-| Field | Type | Meaning |
-|-------|------|---------|
-| | | |
-| | | |
+**Fields:**
+- `field1` (type) — [what it means]
+- `field2` (type) — [what it means]
 
-- **Used by:** [which modules consume this]
-- **Produced by:** [which modules create this]
-- **Rules:**
-  - [invariant — something that must always be true]
+**Used by:** [which modules consume this]
+
+**Produced by:** [which modules create this]
+
+**Rules:**
+- [invariant — something that must always be true]
 
 ---
 
@@ -65,13 +66,14 @@
 
 **Purpose:** [one line — what behavior this represents]
 
-| Method | Signature | What it does |
-|--------|-----------|-------------|
-| | | |
+**Methods:**
+- `method_name(args) -> Result` — [what it does]
+- `another_method(args) -> Type` — [what it does]
 
-- **Implementations:** [list concrete types that implement this]
-- **Rules:**
-  - [constraint — e.g. must be stateless, must return in <Xms]
+**Implementations:** [list concrete types that implement this]
+
+**Rules:**
+- [constraint — e.g. must be stateless, must return in <Xms]
 
 ---
 
@@ -80,15 +82,17 @@
 #### [BoundaryName1]
 
 **Purpose:** [what outside thing this wraps]
+
 **Touches:** [file system | network | CLI | database | env vars | ...]
 
-| Operation | Input → Output | Notes |
-|-----------|---------------|-------|
-| | | |
+**Operations:**
+- `operation_name(input) -> output` — [notes about this operation]
+- `another_op(input) -> output` — [notes]
 
-- **Error handling:** [what happens when the outside world fails]
-- **Rules:**
-  - [e.g. never holds file lock, must timeout after Xs]
+**Error handling:** [what happens when the outside world fails]
+
+**Rules:**
+- [e.g. never holds file lock, must timeout after Xs]
 
 ---
 

@@ -27,9 +27,17 @@
   CLI commands, function calls, HTTP endpoints, etc.
 -->
 
-| Entry Point | Signature | Returns | Purpose |
-|------------|-----------|---------|---------|
-| [command/function/endpoint] | [input params] | [output type] | [what it does] |
+**Entry point 1:**
+- Name: `command_name` or `function_name` or `/endpoint`
+- Signature: [input params]
+- Returns: [output type]
+- Purpose: [what it does]
+
+**Entry point 2:**
+- Name: [name]
+- Signature: [input params]
+- Returns: [output type]
+- Purpose: [what it does]
 
 **Examples:**
 ```
@@ -60,9 +68,9 @@
 [pseudo-code or actual type definition]
 ```
 
-| Field | Type | Meaning | Required? | Validated how? |
-|-------|------|---------|-----------|----------------|
-| | | | Yes/No | [validation rule] |
+**Fields:**
+- `field1` (type) — [meaning] — Required: Yes/No — Validated: [validation rule]
+- `field2` (type) — [meaning] — Required: Yes/No — Validated: [validation rule]
 
 **Flows through:**
 <!-- Which interfaces consume/produce this type -->
@@ -98,9 +106,9 @@
 [trait definition or interface spec]
 ```
 
-| Method | Input → Output | Purpose | Error conditions |
-|--------|---------------|---------|-----------------|
-| | | | |
+**Methods:**
+- `method_name(input) -> output` — Purpose: [what it does] — Errors: [error conditions]
+- `another_method(input) -> output` — Purpose: [what it does] — Errors: [error conditions]
 
 **Implementations:**
 <!-- Which concrete types provide this interface -->
@@ -285,11 +293,20 @@ project-root/
   For each interface, what needs testing?
 -->
 
-| Interface | Test type | What to test | Test file |
-|-----------|-----------|--------------|-----------|
-| [API name] | Unit | [specific behavior] | [file path] |
-| [API name] | Integration | [interface interaction] | [file path] |
-| [Type name] | Property | [invariant to verify] | [file path] |
+**Interface: [API name]**
+- Test type: Unit
+- What to test: [specific behavior]
+- Test file: [file path]
+
+**Interface: [API name]**
+- Test type: Integration
+- What to test: [interface interaction]
+- Test file: [file path]
+
+**Type: [Type name]**
+- Test type: Property
+- What to test: [invariant to verify]
+- Test file: [file path]
 
 **Coverage goals:**
 - [ ] All public API entry points have integration tests
